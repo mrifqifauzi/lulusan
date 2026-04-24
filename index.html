@@ -1,338 +1,381 @@
-import React, { useState, useEffect } from 'react';
-import { GraduationCap, Lock, User, LogOut, CheckCircle, XCircle, Award, ChevronRight, School } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Pengumuman Kelulusan</title>
+    
+    <!-- Tailwind CSS (CDN for preview/static hosting) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons (CDN) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-// --- DATA SEKOLAH ---
-const SCHOOL_INFO = {
-  name: 'SMK NEGERI 1 NUSANTARA',
-  address: 'Jl. Pendidikan Nasional No. 123, Kec. Cerdas, Kota Pelajar, Provinsi Pengetahuan 12345',
-  contact: 'Telp: (021) 1234567 | Email: info@sman1nusantara.sch.id',
-  principal: 'Dr. H. Budi Santoso, M.Pd.',
-  nip: '19700101 199512 1 001'
-};
+    <!-- Custom Config for Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Smooth base transitions */
+        .app-transition { transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4 font-sans text-slate-800 selection:bg-blue-100 selection:text-blue-900">
 
-// --- DATA DUMMY (Sebagai pengganti Database) ---
-const STUDENT_DB = [
-  {
-    nis: '1001',
-    nisn: '0051234567',
-    password: '123',
-    name: 'Ahmad Hidayat',
-    class: 'XII RPL 1',
-    status: 'Lulus',
-    message: 'Selamat! Anda telah menyelesaikan pendidikan dengan baik. Teruslah berkarya dan raih cita-citamu.'
-  },
-  {
-    nis: '1002',
-    nisn: '0057654321',
-    password: '123',
-    name: 'Siti Aminah',
-    class: 'XII MIPA 2',
-    status: 'Lulus',
-    message: 'Selamat atas kelulusanmu! Semoga ilmu yang didapat berkah dan bermanfaat untuk masa depan.'
-  },
-  {
-    nis: '1003',
-    nisn: '0061122334',
-    password: '123',
-    name: 'Budi Perkasa',
-    class: 'XII IPS 1',
-    status: 'Tidak Lulus',
-    message: 'Mohon maaf, Anda belum memenuhi kriteria kelulusan tahun ini. Tetap semangat dan jangan menyerah.'
-  }
-];
+    <!-- Background Ornaments -->
+    <div class="fixed top-0 left-0 w-full h-96 bg-gradient-to-b from-slate-200/50 to-transparent -z-10"></div>
+    <div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-100/30 blur-3xl -z-10"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-slate-200/50 blur-3xl -z-10"></div>
 
-export default function App() {
-  // State Management
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [nis, setNis] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [showResultCard, setShowResultCard] = useState(false);
-
-  // Handle Login Process
-  const handleLogin = (e) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
-    // Simulasi delay jaringan agar terasa lebih natural dan elegan
-    setTimeout(() => {
-      const user = STUDENT_DB.find(s => s.nis === nis && s.password === password);
-      
-      if (user) {
-        setCurrentUser(user);
-        setIsLoggedIn(true);
-        // Delay sedikit sebelum memunculkan kartu hasil untuk efek animasi
-        setTimeout(() => setShowResultCard(true), 100);
-      } else {
-        setError('NIS atau Password yang Anda masukkan salah.');
-      }
-      setIsLoading(false);
-    }, 1200);
-  };
-
-  // Handle Logout Process
-  const handleLogout = () => {
-    setShowResultCard(false);
-    setTimeout(() => {
-      setIsLoggedIn(false);
-      setCurrentUser(null);
-      setNis('');
-      setPassword('');
-      setError('');
-    }, 300); // Tunggu animasi tutup kartu
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4 font-sans text-slate-800 selection:bg-blue-100 selection:text-blue-900">
-      
-      {/* Background Ornaments (Subtle) */}
-      <div className="fixed top-0 left-0 w-full h-96 bg-gradient-to-b from-slate-200/50 to-transparent -z-10" />
-      <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-100/30 blur-3xl -z-10" />
-      <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-slate-200/50 blur-3xl -z-10" />
-
-      {/* --- BAGIAN LOGIN --- */}
-      {!isLoggedIn && (
-        <div className={`w-full max-w-md transition-all duration-700 ease-out transform ${!isLoggedIn ? 'translate-y-0 opacity-100' : '-translate-y-8 opacity-0'}`}>
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white shadow-sm border border-slate-100 mb-4">
-              <School className="w-8 h-8 text-slate-700" />
+    <!-- ==================== BAGIAN LOGIN ==================== -->
+    <div id="login-section" class="w-full max-w-md app-transition translate-y-0 opacity-100">
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white shadow-sm border border-slate-100 mb-4">
+                <i data-lucide="school" class="w-8 h-8 text-slate-700"></i>
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Portal Kelulusan</h1>
-            <p className="text-sm text-slate-500 mt-2">SMA Negeri 1 Nusantara</p>
-          </div>
+            <h1 class="text-2xl font-semibold tracking-tight text-slate-900">Portal Kelulusan</h1>
+            <p class="text-sm text-slate-500 mt-2">SMK Negeri 1 Nusantara</p>
+        </div>
 
-          <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 border border-slate-100/60 backdrop-blur-sm">
-            <h2 className="text-lg font-medium text-slate-800 mb-6 text-center">Masuk ke Akun Anda</h2>
+        <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 border border-slate-100/60 backdrop-blur-sm">
+            <h2 class="text-lg font-medium text-slate-800 mb-6 text-center">Masuk ke Akun Anda</h2>
             
-            <form onSubmit={handleLogin} className="space-y-5">
-              {/* Input NIS */}
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-slate-600 block" htmlFor="nis">Nomor Induk Siswa</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                    <User className="h-5 w-5 text-slate-400" />
-                  </div>
-                  <input
-                    id="nis"
-                    type="text"
-                    required
-                    className="block w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-900/5 focus:border-slate-400 transition-colors outline-none"
-                    placeholder="Masukkan NIS Anda"
-                    value={nis}
-                    onChange={(e) => setNis(e.target.value)}
-                  />
+            <form id="login-form" class="space-y-5">
+                <!-- Input NIS -->
+                <div class="space-y-1.5">
+                    <label class="text-sm font-medium text-slate-600 block" for="nis">Nomor Induk Siswa</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <i data-lucide="user" class="h-5 w-5 text-slate-400"></i>
+                        </div>
+                        <input id="nis" type="text" required
+                            class="block w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-900/5 focus:border-slate-400 transition-colors outline-none"
+                            placeholder="Masukkan NIS Anda">
+                    </div>
                 </div>
-              </div>
 
-              {/* Input Password */}
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-slate-600 block" htmlFor="password">Kata Sandi</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-slate-400" />
-                  </div>
-                  <input
-                    id="password"
-                    type="password"
-                    required
-                    className="block w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-900/5 focus:border-slate-400 transition-colors outline-none"
-                    placeholder="Masukkan kata sandi"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
+                <!-- Input Password -->
+                <div class="space-y-1.5">
+                    <label class="text-sm font-medium text-slate-600 block" for="password">Kata Sandi</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <i data-lucide="lock" class="h-5 w-5 text-slate-400"></i>
+                        </div>
+                        <input id="password" type="password" required
+                            class="block w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-900/5 focus:border-slate-400 transition-colors outline-none"
+                            placeholder="Masukkan kata sandi">
+                    </div>
                 </div>
-              </div>
 
-              {/* Error Message */}
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-100 rounded-lg flex items-center gap-2 text-red-600 text-sm animate-pulse">
-                  <XCircle className="w-4 h-4 shrink-0" />
-                  <p>{error}</p>
+                <!-- Error Message (Hidden by default) -->
+                <div id="error-box" class="hidden p-3 bg-red-50 border border-red-100 rounded-lg flex items-center gap-2 text-red-600 text-sm animate-pulse">
+                    <i data-lucide="x-circle" class="w-4 h-4 shrink-0"></i>
+                    <p>NIS atau Password yang Anda masukkan salah.</p>
                 </div>
-              )}
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full flex justify-center items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white py-3.5 px-4 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg shadow-slate-900/20 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed mt-2"
-              >
-                {isLoading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Memverifikasi...
-                  </>
-                ) : (
-                  <>
-                    Lihat Hasil Kelulusan
-                    <ChevronRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
+                <!-- Submit Button -->
+                <button type="submit" id="submit-btn"
+                    class="w-full flex justify-center items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white py-3.5 px-4 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg shadow-slate-900/20 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed mt-2">
+                    
+                    <span id="btn-text" class="flex items-center gap-2">
+                        Lihat Hasil Kelulusan <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </span>
+                    
+                    <span id="btn-spinner" class="hidden flex items-center gap-2">
+                        <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Memverifikasi...
+                    </span>
+                </button>
             </form>
             
-            <div className="mt-8 text-center border-t border-slate-100 pt-6">
-              <p className="text-xs text-slate-400">
-                Gunakan NIS dan Password yang telah diberikan oleh pihak sekolah.
-                <br/>Demo: NIS (1001, 1002, 1003) | Pass (123)
-              </p>
+            <div class="mt-8 text-center border-t border-slate-100 pt-6">
+                <p class="text-xs text-slate-400">
+                    Gunakan NIS dan Password yang telah diberikan oleh pihak sekolah.<br/>
+                    Demo: NIS (1001, 1002, 1003) | Pass (123)
+                </p>
             </div>
-          </div>
         </div>
-      )}
-
-      {/* --- BAGIAN HASIL KELULUSAN --- */}
-      {isLoggedIn && currentUser && (
-        <div className={`w-full max-w-2xl transition-all duration-700 ease-out transform ${showResultCard ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-12 opacity-0 scale-95'}`}>
-          
-          <div className="flex justify-between items-center mb-6 px-2">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center border border-slate-200">
-                <School className="w-5 h-5 text-slate-600" />
-              </div>
-              <div>
-                <h2 className="text-sm font-semibold text-slate-800">SMA Negeri 1 Nusantara</h2>
-                <p className="text-xs text-slate-500">Tahun Ajaran 2025/2026</p>
-              </div>
-            </div>
-            
-            <button 
-              onClick={handleLogout}
-              className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 bg-white px-4 py-2 rounded-full border border-slate-200 shadow-sm transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Keluar</span>
-            </button>
-          </div>
-
-          <div className="bg-white rounded-3xl shadow-2xl shadow-slate-200/50 overflow-hidden border border-slate-100 relative">
-            
-            {/* Garis Aksen Warna di Atas Dokumen */}
-            <div className={`h-2 w-full absolute top-0 left-0 ${currentUser.status === 'Lulus' ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
-
-            <div className="relative pt-10 pb-4 px-6 sm:px-12 flex flex-col items-center text-center">
-              
-              {/* KOP SURAT SEKOLAH */}
-              <div className="w-full flex flex-col sm:flex-row items-center gap-4 border-b-[3px] border-slate-800 pb-5 mb-8">
-                <div className="w-20 h-20 shrink-0 rounded-full border-2 border-slate-300 flex items-center justify-center bg-slate-50">
-                  <School className="w-10 h-10 text-slate-700" />
-                </div>
-                <div className="text-center sm:text-left flex-1">
-                  <h1 className="font-bold text-xl sm:text-2xl tracking-wide text-slate-900">{SCHOOL_INFO.name}</h1>
-                  <p className="text-xs sm:text-sm text-slate-600 mt-1">{SCHOOL_INFO.address}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{SCHOOL_INFO.contact}</p>
-                </div>
-              </div>
-
-              {/* JUDUL SURAT */}
-              <div className="mb-8 text-center">
-                <h2 className="text-lg font-bold text-slate-800 uppercase tracking-widest underline underline-offset-4 decoration-2">Surat Keterangan Kelulusan</h2>
-                <p className="text-sm text-slate-500 mt-2">Nomor: 421.3/050/SMAN1/2026</p>
-              </div>
-
-              {/* Data Siswa (Diperbarui lebih lengkap) */}
-              <div className="w-full max-w-md bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 shadow-sm mb-8 text-left relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-300/60"></div>
-                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-100 pb-3">Biodata Siswa</h3>
-                
-                <div className="grid grid-cols-[60px_10px_1fr] sm:grid-cols-[80px_10px_1fr] gap-y-3 text-sm">
-                  <div className="text-slate-500 font-medium">Nama</div>
-                  <div className="text-slate-400">:</div>
-                  <div className="text-slate-900 font-bold text-base">{currentUser.name}</div>
-
-                  <div className="text-slate-500 font-medium">NIS</div>
-                  <div className="text-slate-400">:</div>
-                  <div className="text-slate-800 font-medium">{currentUser.nis}</div>
-
-                  <div className="text-slate-500 font-medium">NISN</div>
-                  <div className="text-slate-400">:</div>
-                  <div className="text-slate-800 font-medium">{currentUser.nisn}</div>
-
-                  <div className="text-slate-500 font-medium">Kelas</div>
-                  <div className="text-slate-400">:</div>
-                  <div className="text-slate-800 font-medium">{currentUser.class}</div>
-                </div>
-              </div>
-
-              {/* Pesan Keputusan */}
-              <div className="w-full max-w-lg">
-                <p className="text-sm text-slate-500 mb-2 uppercase tracking-widest font-semibold">Memutuskan Bahwa Siswa Tersebut Dinyatakan:</p>
-                <div className={`text-4xl sm:text-5xl font-black mb-6 tracking-tight ${currentUser.status === 'Lulus' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                  {currentUser.status.toUpperCase()}
-                </div>
-                
-                <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 mt-8">
-                  <p className="text-slate-600 leading-relaxed">
-                    "{currentUser.message}"
-                  </p>
-                </div>
-              </div>
-
-            </div>
-
-            {/* BAGIAN TANDA TANGAN & STEMPEL */}
-            <div className="px-8 sm:px-12 pb-12 pt-2 flex justify-end w-full">
-              <div className="text-center relative w-64">
-                <p className="text-sm text-slate-700 mb-1">Jakarta, 24 April 2026</p>
-                <p className="text-sm font-semibold text-slate-800">Kepala Sekolah</p>
-                
-                {/* Visual Stempel & Tanda Tangan */}
-                <div className="relative h-28 my-2 flex items-center justify-center">
-                  {/* Stempel Sekolah (Efek Transparan) */}
-                  <div className="absolute -left-8 top-0 opacity-60 mix-blend-multiply" style={{ transform: 'rotate(-12deg)' }}>
-                    <svg viewBox="0 0 100 100" className="w-28 h-28">
-                      <circle cx="50" cy="50" r="46" stroke="#4c1d95" strokeWidth="2" fill="none" />
-                      <circle cx="50" cy="50" r="40" stroke="#4c1d95" strokeWidth="1" fill="none" />
-                      <circle cx="50" cy="50" r="28" stroke="#4c1d95" strokeWidth="1" fill="none" />
-                      <path id="curve-text" d="M 15 50 A 35 35 0 1 1 85 50 A 35 35 0 1 1 15 50" fill="none" />
-                      <text fill="#4c1d95" fontSize="9" fontWeight="bold" letterSpacing="1">
-                        <textPath href="#curve-text" startOffset="8%">PEMERINTAH PROVINSI •</textPath>
-                      </text>
-                      <path d="M 22 50 L 78 50" stroke="#4c1d95" strokeWidth="1" />
-                      <text x="50" y="46" fill="#4c1d95" fontSize="7" fontWeight="bold" textAnchor="middle">DINAS PENDIDIKAN</text>
-                      <text x="50" y="58" fill="#4c1d95" fontSize="8" fontWeight="bold" textAnchor="middle">SMAN 1</text>
-                    </svg>
-                  </div>
-                  
-                  {/* Tanda Tangan (Grafis Vektor) */}
-                  <div className="absolute z-10 opacity-80" style={{ transform: 'rotate(-5deg)' }}>
-                    <svg viewBox="0 0 200 100" className="w-36 h-20">
-                      <path d="M 30 70 C 40 30, 60 20, 70 50 C 80 80, 90 40, 110 40 C 130 40, 120 70, 140 70 C 150 70, 160 50, 170 50 C 180 50, 180 60, 190 70" stroke="#1e3a8a" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M 50 60 C 80 50, 120 60, 160 50" stroke="#1e3a8a" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-                    </svg>
-                  </div>
-                </div>
-
-                <p className="text-sm font-bold text-slate-800 underline underline-offset-2">{SCHOOL_INFO.principal}</p>
-                <p className="text-xs text-slate-600 mt-1">NIP. {SCHOOL_INFO.nip}</p>
-              </div>
-            </div>
-
-            {/* Footer Surat Info */}
-            <div className="bg-slate-50/80 px-8 py-4 border-t border-slate-100 flex justify-center text-sm text-slate-500">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-500" />
-                <span>Dokumen Kelulusan Resmi Digital</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      )}
-      
-      {/* Global Footer */}
-      <div className="fixed bottom-4 text-center w-full pointer-events-none">
-        <p className="text-xs text-slate-400 font-medium tracking-wide">
-          &copy; {new Date().getFullYear()} Sistem Informasi Akademik
-        </p>
-      </div>
-
     </div>
-  );
-}
+
+    <!-- ==================== BAGIAN HASIL KELULUSAN ==================== -->
+    <div id="result-section" class="hidden w-full max-w-2xl app-transition translate-y-12 opacity-0 scale-95">
+        
+        <div class="flex justify-between items-center mb-6 px-2">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center border border-slate-200">
+                    <i data-lucide="school" class="w-5 h-5 text-slate-600"></i>
+                </div>
+                <div>
+                    <h2 class="text-sm font-semibold text-slate-800">SMK Negeri 1 Nusantara</h2>
+                    <p class="text-xs text-slate-500">Tahun Ajaran 2025/2026</p>
+                </div>
+            </div>
+            
+            <button id="logout-btn" class="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 bg-white px-4 py-2 rounded-full border border-slate-200 shadow-sm transition-colors cursor-pointer">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Keluar</span>
+            </button>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-2xl shadow-slate-200/50 overflow-hidden border border-slate-100 relative">
+            
+            <!-- Garis Aksen Warna di Atas Dokumen (Dinamis dari JS) -->
+            <div id="doc-accent" class="h-2 w-full absolute top-0 left-0 bg-emerald-500"></div>
+
+            <div class="relative pt-10 pb-4 px-6 sm:px-12 flex flex-col items-center text-center">
+                
+                <!-- KOP SURAT SEKOLAH -->
+                <div class="w-full flex flex-col sm:flex-row items-center gap-4 border-b-[3px] border-slate-800 pb-5 mb-8">
+                    <div class="w-20 h-20 shrink-0 rounded-full border-2 border-slate-300 flex items-center justify-center bg-slate-50">
+                        <i data-lucide="school" class="w-10 h-10 text-slate-700"></i>
+                    </div>
+                    <div class="text-center sm:text-left flex-1">
+                        <h1 class="font-bold text-xl sm:text-2xl tracking-wide text-slate-900" id="school-name">SMK NEGERI 1 NUSANTARA</h1>
+                        <p class="text-xs sm:text-sm text-slate-600 mt-1" id="school-address">Jl. Pendidikan Nasional No. 123...</p>
+                        <p class="text-xs text-slate-500 mt-0.5" id="school-contact">Telp: (021) 1234567 | Email: info@...</p>
+                    </div>
+                </div>
+
+                <!-- JUDUL SURAT -->
+                <div class="mb-8 text-center">
+                    <h2 class="text-lg font-bold text-slate-800 uppercase tracking-widest underline underline-offset-4 decoration-2">Surat Keterangan Kelulusan</h2>
+                    <p class="text-sm text-slate-500 mt-2">Nomor: 421.3/050/SMKN1/2026</p>
+                </div>
+
+                <!-- Data Siswa -->
+                <div class="w-full max-w-md bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 shadow-sm mb-8 text-left relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-slate-300/60"></div>
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-100 pb-3">Biodata Siswa</h3>
+                    
+                    <div class="grid grid-cols-[60px_10px_1fr] sm:grid-cols-[80px_10px_1fr] gap-y-3 text-sm">
+                        <div class="text-slate-500 font-medium">Nama</div><div class="text-slate-400">:</div>
+                        <div class="text-slate-900 font-bold text-base" id="res-name">-</div>
+
+                        <div class="text-slate-500 font-medium">NIS</div><div class="text-slate-400">:</div>
+                        <div class="text-slate-800 font-medium" id="res-nis">-</div>
+
+                        <div class="text-slate-500 font-medium">NISN</div><div class="text-slate-400">:</div>
+                        <div class="text-slate-800 font-medium" id="res-nisn">-</div>
+
+                        <div class="text-slate-500 font-medium">Kelas</div><div class="text-slate-400">:</div>
+                        <div class="text-slate-800 font-medium" id="res-class">-</div>
+                    </div>
+                </div>
+
+                <!-- Pesan Keputusan -->
+                <div class="w-full max-w-lg">
+                    <p class="text-sm text-slate-500 mb-2 uppercase tracking-widest font-semibold">Memutuskan Bahwa Siswa Tersebut Dinyatakan:</p>
+                    <div id="res-status-text" class="text-4xl sm:text-5xl font-black mb-6 tracking-tight text-emerald-600">
+                        LULUS
+                    </div>
+                    
+                    <div class="bg-slate-50 rounded-2xl p-6 border border-slate-100 mt-8">
+                        <p class="text-slate-600 leading-relaxed italic" id="res-message">
+                            "Pesan dari sekolah"
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- BAGIAN TANDA TANGAN & STEMPEL -->
+            <div class="px-8 sm:px-12 pb-12 pt-2 flex justify-end w-full">
+                <div class="text-center relative w-64">
+                    <p class="text-sm text-slate-700 mb-1">Jakarta, 24 April 2026</p>
+                    <p class="text-sm font-semibold text-slate-800">Kepala Sekolah</p>
+                    
+                    <!-- Visual Stempel & Tanda Tangan -->
+                    <div class="relative h-28 my-2 flex items-center justify-center">
+                        <div class="absolute -left-8 top-0 opacity-60 mix-blend-multiply" style="transform: rotate(-12deg);">
+                            <svg viewBox="0 0 100 100" class="w-28 h-28">
+                                <circle cx="50" cy="50" r="46" stroke="#4c1d95" stroke-width="2" fill="none" />
+                                <circle cx="50" cy="50" r="40" stroke="#4c1d95" stroke-width="1" fill="none" />
+                                <circle cx="50" cy="50" r="28" stroke="#4c1d95" stroke-width="1" fill="none" />
+                                <path id="curve-text" d="M 15 50 A 35 35 0 1 1 85 50 A 35 35 0 1 1 15 50" fill="none" />
+                                <text fill="#4c1d95" font-size="9" font-weight="bold" letter-spacing="1">
+                                    <textPath href="#curve-text" startOffset="8%">PEMERINTAH PROVINSI •</textPath>
+                                </text>
+                                <path d="M 22 50 L 78 50" stroke="#4c1d95" stroke-width="1" />
+                                <text x="50" y="46" fill="#4c1d95" font-size="7" font-weight="bold" text-anchor="middle">DINAS PENDIDIKAN</text>
+                                <text x="50" y="58" fill="#4c1d95" font-size="8" font-weight="bold" text-anchor="middle">SMKN 1</text>
+                            </svg>
+                        </div>
+                        <div class="absolute z-10 opacity-80" style="transform: rotate(-5deg);">
+                            <svg viewBox="0 0 200 100" class="w-36 h-20">
+                                <path d="M 30 70 C 40 30, 60 20, 70 50 C 80 80, 90 40, 110 40 C 130 40, 120 70, 140 70 C 150 70, 160 50, 170 50 C 180 50, 180 60, 190 70" stroke="#1e3a8a" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M 50 60 C 80 50, 120 60, 160 50" stroke="#1e3a8a" stroke-width="1.5" fill="none" stroke-linecap="round" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <p class="text-sm font-bold text-slate-800 underline underline-offset-2" id="res-principal">Dr. H. Budi Santoso, M.Pd.</p>
+                    <p class="text-xs text-slate-600 mt-1" id="res-nip">NIP. 19700101 199512 1 001</p>
+                </div>
+            </div>
+
+            <!-- Footer Surat Info -->
+            <div class="bg-slate-50/80 px-8 py-4 border-t border-slate-100 flex justify-center text-sm text-slate-500">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i>
+                    <span>Dokumen Kelulusan Resmi Digital</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Global Footer -->
+    <div class="fixed bottom-4 text-center w-full pointer-events-none">
+        <p class="text-xs text-slate-400 font-medium tracking-wide">
+            &copy; 2026 Sistem Informasi Akademik
+        </p>
+    </div>
+
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+    <script>
+        // Inisialisasi Ikon Lucide
+        lucide.createIcons();
+
+        // Data Sekolah
+        const SCHOOL_INFO = {
+            name: 'SMK NEGERI 1 NUSANTARA',
+            address: 'Jl. Pendidikan Nasional No. 123, Kec. Cerdas, Kota Pelajar, Provinsi Pengetahuan 12345',
+            contact: 'Telp: (021) 1234567 | Email: info@sman1nusantara.sch.id',
+            principal: 'Dr. H. Budi Santoso, M.Pd.',
+            nip: '19700101 199512 1 001'
+        };
+
+        // Data Siswa (Simulasi Database)
+        const STUDENT_DB = [
+            { nis: '1001', nisn: '0051234567', password: '123', name: 'Ahmad Hidayat', class: 'XII RPL 1', status: 'Lulus', message: 'Selamat! Anda telah menyelesaikan pendidikan dengan baik. Teruslah berkarya dan raih cita-citamu.' },
+            { nis: '1002', nisn: '0057654321', password: '123', name: 'Siti Aminah', class: 'XII TKJ 2', status: 'Lulus', message: 'Selamat atas kelulusanmu! Semoga ilmu yang didapat berkah dan bermanfaat untuk masa depan.' },
+            { nis: '1003', nisn: '0061122334', password: '123', name: 'Budi Perkasa', class: 'XII AKL 1', status: 'Tidak Lulus', message: 'Mohon maaf, Anda belum memenuhi kriteria kelulusan tahun ini. Tetap semangat dan jangan menyerah.' }
+        ];
+
+        // Elemen DOM
+        const loginForm = document.getElementById('login-form');
+        const loginSection = document.getElementById('login-section');
+        const resultSection = document.getElementById('result-section');
+        const errorBox = document.getElementById('error-box');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const btnSpinner = document.getElementById('btn-spinner');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        // Render Info Sekolah ke DOM
+        document.getElementById('school-name').textContent = SCHOOL_INFO.name;
+        document.getElementById('school-address').textContent = SCHOOL_INFO.address;
+        document.getElementById('school-contact').textContent = SCHOOL_INFO.contact;
+        document.getElementById('res-principal').textContent = SCHOOL_INFO.principal;
+        document.getElementById('res-nip').textContent = 'NIP. ' + SCHOOL_INFO.nip;
+
+        // Event Submit Login
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nisInput = document.getElementById('nis').value;
+            const passwordInput = document.getElementById('password').value;
+
+            // Sembunyikan error dan aktifkan loading
+            errorBox.classList.add('hidden');
+            submitBtn.disabled = true;
+            btnText.classList.add('hidden');
+            btnSpinner.classList.remove('hidden');
+
+            // Simulasi Request ke Server (1.2 detik)
+            setTimeout(() => {
+                const user = STUDENT_DB.find(s => s.nis === nisInput && s.password === passwordInput);
+
+                if (user) {
+                    // Populate Data Siswa
+                    document.getElementById('res-name').textContent = user.name;
+                    document.getElementById('res-nis').textContent = user.nis;
+                    document.getElementById('res-nisn').textContent = user.nisn;
+                    document.getElementById('res-class').textContent = user.class;
+                    
+                    const statusText = document.getElementById('res-status-text');
+                    const docAccent = document.getElementById('doc-accent');
+                    const messageEl = document.getElementById('res-message');
+
+                    statusText.textContent = user.status.toUpperCase();
+                    messageEl.textContent = `"${user.message}"`;
+
+                    // Warna Tema berdasarkan Status
+                    if (user.status === 'Lulus') {
+                        statusText.className = 'text-4xl sm:text-5xl font-black mb-6 tracking-tight text-emerald-600';
+                        docAccent.className = 'h-2 w-full absolute top-0 left-0 bg-emerald-500';
+                    } else {
+                        statusText.className = 'text-4xl sm:text-5xl font-black mb-6 tracking-tight text-rose-600';
+                        docAccent.className = 'h-2 w-full absolute top-0 left-0 bg-rose-500';
+                    }
+
+                    // Transisi Animasi: Hilangkan Login Form
+                    loginSection.classList.replace('translate-y-0', '-translate-y-8');
+                    loginSection.classList.replace('opacity-100', 'opacity-0');
+                    loginSection.style.pointerEvents = 'none';
+
+                    // Munculkan Result Card
+                    setTimeout(() => {
+                        loginSection.classList.add('hidden');
+                        resultSection.classList.remove('hidden');
+                        
+                        // Beri jeda sangat sedikit agar display block merender sebelum animasi play
+                        setTimeout(() => {
+                            resultSection.classList.replace('translate-y-12', 'translate-y-0');
+                            resultSection.classList.replace('opacity-0', 'opacity-100');
+                            resultSection.classList.replace('scale-95', 'scale-100');
+                        }, 50);
+
+                    }, 700);
+
+                } else {
+                    // Jika Gagal
+                    errorBox.classList.remove('hidden');
+                }
+
+                // Kembalikan tombol ke state semula
+                submitBtn.disabled = false;
+                btnText.classList.remove('hidden');
+                btnSpinner.classList.add('hidden');
+
+            }, 1200);
+        });
+
+        // Event Logout
+        logoutBtn.addEventListener('click', function() {
+            // Animasi tutup Result Card
+            resultSection.classList.replace('translate-y-0', 'translate-y-12');
+            resultSection.classList.replace('opacity-100', 'opacity-0');
+            resultSection.classList.replace('scale-100', 'scale-95');
+
+            setTimeout(() => {
+                resultSection.classList.add('hidden');
+                loginSection.classList.remove('hidden');
+                
+                // Reset form inputs
+                document.getElementById('nis').value = '';
+                document.getElementById('password').value = '';
+                
+                setTimeout(() => {
+                    loginSection.classList.replace('-translate-y-8', 'translate-y-0');
+                    loginSection.classList.replace('opacity-0', 'opacity-100');
+                    loginSection.style.pointerEvents = 'auto';
+                }, 50);
+            }, 700);
+        });
+
+    </script>
+</body>
+</html>
